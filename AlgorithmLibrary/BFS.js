@@ -152,6 +152,8 @@ BFS.prototype.doBFS = function(startVetex)
 
 	}
 	var vertex = startVetex;
+	this.cmd("SetText", this.visitedID[vertex], "T");
+	this.cmd("SetText", this.parentID[vertex], "-");
 	this.visited[vertex] = true;
 	this.queue[tail] = vertex;
 	this.cmd("CreateLabel", queueID[tail], String.fromCharCode(65 + vertex), QUEUE_START_X + queueSize * QUEUE_SPACING, QUEUE_START_Y);
@@ -159,7 +161,7 @@ BFS.prototype.doBFS = function(startVetex)
 	tail = (tail + 1) % (this.size);
 
 
-	while (queueSize > 0)
+	while (queueSize > 0 && this.visited.filter(x => x).length < this.size)
 	{
 		vertex = this.queue[head];
 		this.cmd("CreateHighlightCircle", this.highlightCircleL, HIGHLIGHT_CIRCLE_COLOR, this.x_pos_logical[vertex], this.y_pos_logical[vertex]);
@@ -214,6 +216,16 @@ BFS.prototype.doBFS = function(startVetex)
 		this.cmd("Delete", this.highlightCircleAM);
 		this.cmd("Delete", this.highlightCircleAL);
 
+	}
+
+	if (queueSize > 0 && this.visited.filter(x => x).length == this.size) {
+		console.log(queueID);
+		this.cmd("CreateLabel", queueID[tail] + 1, "All nodes have been visited. Search complete.", QUEUE_START_X, QUEUE_START_Y + 20, 0);
+		this.cmd("Step");
+		this.cmd("Delete", queueID[tail] + 1);
+		for (i = 0; i < queueSize; i++) {
+			this.cmd("Delete", queueID[(head + i) % this.size]);
+		}
 	}
 
 	return this.commands
